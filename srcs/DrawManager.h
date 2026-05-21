@@ -49,13 +49,15 @@ class DrawManager
         bool isPossibleFoodPosition(const vec2 position) const;
         void updateGrid();
        
-        bool isEatSomething(SDL_Rect rect);
+        bool isEatSomething();
         void drawBackground(SDL_Renderer* renderer);
 
         void rendererPresent(SDL_Renderer* renderer)
         {
             SDL_RenderPresent(renderer);
         }
+
+        
 
     private:
         Board& board;

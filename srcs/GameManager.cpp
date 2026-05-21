@@ -1,5 +1,6 @@
 #include "GameManager.h"
 #include "DrawManager.h"
+#include "SDL_log.h"
 #include "SnakeHead.h"
 
 void GameManager::initGame()
@@ -15,7 +16,7 @@ void GameManager::runGame()
     initGame();
 
     while (true) {
-       //现在还没有处理鼠标拖拽窗口，背景也出了问题
+     
         SDL_SetRenderDrawColor(initManager.getRenderer(), 255, 255, 255, 255);
         SDL_RenderClear(initManager.getRenderer());
         handleKeyBoardEvents();//update snake head's position and direction,later we will update snake body's position in this function as well
@@ -42,7 +43,7 @@ if(snakeHead.getPosition().getX()+snakeHead.getDx() < 0 || snakeHead.getPosition
     return true; // Move is possible
 }
 
-void GameManager::handleKeyBoardEvents()
+void GameManager::handleKeyBoardEvents()//根据键盘事件改变蛇头的方向
 {
     SDL_Event event;
     
@@ -80,8 +81,6 @@ void GameManager::handleKeyBoardEvents()
                 }
             }
 
-          
-
             
         }
     }
@@ -97,17 +96,19 @@ void GameManager::handleKeyBoardEvents()
             }
 }
 
-void GameManager::handleEvents()
+void GameManager::handleEvents()//这个函数主要用来处理吃食物和更新网格的事件
 {
+    
     if(drawManager.isFoodEmpty())
     {
         drawManager.updateGrid();
         drawManager.createFood(initManager.getRenderer());
     }
     // This function can be used to handle the game events such as eating food, updating the grid, etc
-    if(drawManager.isEatSomething(snakeHead.getHeadRect()))
+    if(drawManager.isEatSomething())
     {
-        drawManager.deleteFood();
+        SDL_Log("EAT FOOD");
+        drawManager.deleteFood();//删除了food和foodrect
         drawManager.updateGrid();
         drawManager.createFood(initManager.getRenderer());
         //先测试一下food能否生成吧 这个drawManager.createSnakeBody();先留着

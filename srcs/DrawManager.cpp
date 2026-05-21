@@ -44,7 +44,7 @@ void DrawManager::drawBoard(SDL_Renderer* renderer)
 
 void DrawManager::drawSnakeHead(SDL_Renderer* renderer)
 {
-    SDL_Rect headRect{INIT_POSX+snakeHead.getPosition().getX()*TILE_SIZE,INIT_POSY+snakeHead.getPosition().getY()*TILE_SIZE, TILE_SIZE, TILE_SIZE};
+    SDL_Rect headRect{snakeHead.getHeadRect()};
     SDL_Log("Check");
     if(snakeHead.getDx()==1 &&snakeHead.getDy()==0)
     {
@@ -126,13 +126,15 @@ void DrawManager::drawBackground(SDL_Renderer* renderer)
 }
 
 
-bool DrawManager::isEatSomething(SDL_Rect rect)
+bool DrawManager::isEatSomething()
 {
     SDL_Rect headR = snakeHead.getHeadRect();
-    if(SDL_HasIntersection(&rect, &headR))
+    for (const auto& foodRect : foodRects)
     {
-        return true;
-        foods.pop_back();
+        if (SDL_HasIntersection(&foodRect, &headR))
+        {
+            return true;
+        }
     }
     return false;
 }
@@ -204,6 +206,10 @@ void DrawManager::createFood(SDL_Renderer* renderer)
 
 void DrawManager::drawFood(SDL_Renderer* renderer)
 {
+    if(foods.empty())
+    {
+        return;
+    }
     for(const auto& foodRect : foodRects)
     {
         

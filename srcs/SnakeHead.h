@@ -99,6 +99,8 @@ class SnakeHead : public Snake
         {
             return snakeHeadTexture.get();
         }
+
+       
     private:
         int velocity;//to control the speed of the snake when using mouse motion
         double timer;//to control the render time when using keyboard input

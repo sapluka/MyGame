@@ -37,7 +37,7 @@ class DrawManager
         }
 
 
-        void createSnakeBody();
+        void createSnakeBody(SDL_Renderer* renderer);
         void updateBodyPosition();//store positions in "lastPositions"
         void drawSnakeBody(SDL_Renderer* renderer);
         void deleteSnakeBody();
@@ -72,7 +72,7 @@ class DrawManager
         std::vector<std::vector<int>> grid= std::vector<std::vector<int>>(board.getHeight(), std::vector<int>(board.getWidth(), 0));
 
         inline static std::vector<vec2> lastPositions;
-        inline static std::vector<SnakeBody> snakeBodys;
+        inline static std::vector<std::unique_ptr<SnakeBody>> snakeBodys;
         inline static std::vector<std::unique_ptr<Food>> foods;
 
 

@@ -71,24 +71,26 @@ void DrawManager::drawSnakeHead(SDL_Renderer* renderer)
      
 }
 
-void DrawManager::createSnakeBody()
+void DrawManager::createSnakeBody(SDL_Renderer* renderer)//每次吃到食物时调用
 {
-    snakeBodys.emplace_back();
+    snakeBodys.emplace_back(std::make_unique<SnakeBody>());
+    snakeBodys.back()->initBodyTexture(renderer);
+         
 }
 
-void DrawManager::updateBodyPosition()
+void DrawManager::updateBodyPosition()//每帧调用，更新lastPositions，lastPositions里存储了每个蛇身体的上一个位置，在drawSnakeBody里根据lastPositions画出蛇身体
 {
     lastPositions[0] = snakeHead.getPosition();
     if(snakeBodys.size()>1)
     {
         for(size_t i=1;i<snakeBodys.size();i++)
         {
-            lastPositions[i] = snakeBodys[i-1].getPosition();
+            lastPositions[i] = snakeBodys[i-1]->getPosition();
         }
     }
 }
 
-void DrawManager::deleteSnakeBody()
+void DrawManager::deleteSnakeBody()//还没想好，maybe会有毒药
 {
     //这就是不把lastPositions和snakeBodys放在snakeBody类里面的坏处，需要分别管理lastPositions和snakeBodysRects
     if(!snakeBodys.empty())
@@ -115,7 +117,7 @@ void DrawManager::drawSnakeBody(SDL_Renderer* renderer)
     {        
         SDL_Rect bodyRect{INIT_POSX+position.getX()*TILE_SIZE,INIT_POSY+position.getY()*TILE_SIZE, TILE_SIZE, TILE_SIZE};
         snakeBodyRects.emplace_back(bodyRect);
-        SDL_RenderCopy(renderer, snakeHead.getHeadTexture(), nullptr, &bodyRect); 
+        SDL_RenderCopy(renderer, snakeBodys[0]->getBodyTexture(), nullptr, &bodyRect); 
     }
 }
 
@@ -241,7 +243,7 @@ void DrawManager::updateGrid()
     //更新蛇身体的位置
     for(const auto& body : snakeBodys)
     {
-        grid[body.getPosition().getY()][body.getPosition().getX()] = 2;
+        grid[body->getPosition().getY()][body->getPosition().getX()] = 2;
     }
 
     //更新食物的位置

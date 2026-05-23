@@ -16,7 +16,7 @@ void GameManager::runGame()
     initGame();
 
     while (true) {
-     
+        //这里的逻辑有点乱
         SDL_SetRenderDrawColor(initManager.getRenderer(), 255, 255, 255, 255);
         SDL_RenderClear(initManager.getRenderer());
         handleKeyBoardEvents();//update snake head's position and direction,later we will update snake body's position in this function as well
@@ -43,7 +43,7 @@ if(snakeHead.getPosition().getX()+snakeHead.getDx() < 0 || snakeHead.getPosition
     return true; // Move is possible
 }
 
-void GameManager::handleKeyBoardEvents()//根据键盘事件改变蛇头的方向
+void GameManager::handleKeyBoardEvents()//根据键盘事件改变蛇头的方向，同时根据蛇头的方向和位置更新蛇头的位置
 {
     SDL_Event event;
     
@@ -111,7 +111,8 @@ void GameManager::handleEvents()//这个函数主要用来处理吃食物和更�
         drawManager.deleteFood();//删除了food和foodrect
         drawManager.updateGrid();
         drawManager.createFood(initManager.getRenderer());
-        //先测试一下food能否生成吧 这个drawManager.createSnakeBody();先留着
+        drawManager.createSnakeBody(initManager.getRenderer());
+         drawManager.updateGrid();
     }
 }
 

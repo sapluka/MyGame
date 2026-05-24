@@ -13,14 +13,15 @@
 #include <memory>
 #include <vector>
 #include "InitManager.h"
-
+#include "vec2.h"
 
 //the objects which are dynamically created better placed in the DrawManager
 class DrawManager
 {
     public:
         DrawManager(Board& b, SnakeHead& head): board(b), snakeHead(head)
-        {            
+        {           
+            
         };
         ~DrawManager()=default;
         void initGraphics(SDL_Renderer* renderer);//init textures
@@ -38,6 +39,7 @@ class DrawManager
 
 
         void createSnakeBody(SDL_Renderer* renderer);
+        void recordLastPosition();       
         void updateBodyPosition();//store positions in "lastPositions"
         void drawSnakeBody(SDL_Renderer* renderer);
         void deleteSnakeBody();
@@ -71,7 +73,8 @@ class DrawManager
 
         std::vector<std::vector<int>> grid= std::vector<std::vector<int>>(board.getHeight(), std::vector<int>(board.getWidth(), 0));
 
-        inline static std::vector<vec2> lastPositions;
+
+        vec2 lastHeadPosition{0,0};
         inline static std::vector<std::unique_ptr<SnakeBody>> snakeBodys;
         inline static std::vector<std::unique_ptr<Food>> foods;
 

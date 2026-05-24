@@ -8,9 +8,9 @@ constexpr const char* SNAKE_BODY_IMG_PATH = "../assets/snake_body_tile.png";
 class SnakeBody : public Snake
 {
     public:
-        SnakeBody():Snake()
+        SnakeBody(vec2 position):Snake()
         {
-
+            this->position = position;
         }
         ~SnakeBody()=default;        
         void updateBodyPosition();//set position
@@ -19,6 +19,11 @@ class SnakeBody : public Snake
         {
             return position;
         }
+
+        void setPosition(const vec2& newPosition)
+        {
+            position = newPosition;
+        }   
 
         SDL_Texture* getBodyTexture() const
         {

@@ -10,6 +10,8 @@ class vec2
             throw std::invalid_argument("Position must be within the board boundaries.");
         }   
 
+        ~vec2()=default;
+
         int getX() const { return x; }
         int getY() const { return y; }
         void setX(int newX) { x = newX; }
@@ -18,3 +20,5 @@ class vec2
         int x;
         int y;
 };
+
+

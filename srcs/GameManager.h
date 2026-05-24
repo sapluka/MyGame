@@ -7,14 +7,14 @@
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_mixer.h>
 
-inline int time1 = 0;
+inline int moveCounter = 0;
 
 class GameManager
 {
     public:
         GameManager(InitManager& i, DrawManager& d, SnakeHead& s, Board& br): initManager(i), drawManager(d), snakeHead(s), board(br)
         {
-            time1 = SDL_GetTicks();
+            moveCounter = SDL_GetTicks();
         };
         ~GameManager()=default;
         void runGame();

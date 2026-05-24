@@ -45,27 +45,26 @@ void DrawManager::drawBoard(SDL_Renderer* renderer)
 void DrawManager::drawSnakeHead(SDL_Renderer* renderer)
 {
     SDL_Rect headRect{snakeHead.getHeadRect()};
-    SDL_Log("Check");
     if(snakeHead.getDx()==1 &&snakeHead.getDy()==0)
     {
         SDL_RenderCopyEx(renderer, snakeHead.getHeadTexture(), nullptr, &headRect, 90, nullptr, SDL_FLIP_NONE);
-        SDL_Log("Check 1");
+       
     }
     else if(snakeHead.getDx()==-1 && snakeHead.getDy()==0)
     {
         SDL_RenderCopyEx(renderer, snakeHead.getHeadTexture(), nullptr, &headRect, 270, nullptr, SDL_FLIP_NONE);
-        SDL_Log("Check 2");
+       
 
     }
     else if(snakeHead.getDx()==0 && snakeHead.getDy()==1)
     {
         SDL_RenderCopyEx(renderer, snakeHead.getHeadTexture(), nullptr, &headRect, 180, nullptr, SDL_FLIP_NONE);
-        SDL_Log("Check 3");
+        
     }
     else if(snakeHead.getDx()==0 && snakeHead.getDy()==-1)
     {
         SDL_RenderCopyEx(renderer, snakeHead.getHeadTexture(), nullptr, &headRect, 0, nullptr, SDL_FLIP_NONE);
-        SDL_Log("Check 4");
+        
         
     }
      
@@ -73,21 +72,29 @@ void DrawManager::drawSnakeHead(SDL_Renderer* renderer)
 
 void DrawManager::createSnakeBody(SDL_Renderer* renderer)//每次吃到食物时调用
 {
-    snakeBodys.emplace_back(std::make_unique<SnakeBody>());
+    SDL_Log("CREATE SB");
+    vec2 pos = snakeBodys.empty() ? snakeHead.getPosition() : snakeBodys.back()->getPosition();
+    snakeBodys.emplace_back(std::make_unique<SnakeBody>(pos));
     snakeBodys.back()->initBodyTexture(renderer);
-         
+}
+
+void DrawManager::recordLastPosition()
+{
+    lastHeadPosition = snakeHead.getPosition();   
 }
 
 void DrawManager::updateBodyPosition()//每帧调用，更新lastPositions，lastPositions里存储了每个蛇身体的上一个位置，在drawSnakeBody里根据lastPositions画出蛇身体
 {
-    lastPositions[0] = snakeHead.getPosition();
-    if(snakeBodys.size()>1)
+    if(snakeBodys.empty())
     {
-        for(size_t i=1;i<snakeBodys.size();i++)
-        {
-            lastPositions[i] = snakeBodys[i-1]->getPosition();
-        }
+        return;
     }
+    //从后往前更新，保证读到的是前一段的旧位置
+    for(size_t i=snakeBodys.size()-1; i>0; --i)
+    {
+        snakeBodys[i]->setPosition(snakeBodys[i-1]->getPosition());
+    }
+    snakeBodys[0]->setPosition(lastHeadPosition);
 }
 
 void DrawManager::deleteSnakeBody()//还没想好，maybe会有毒药
@@ -98,10 +105,6 @@ void DrawManager::deleteSnakeBody()//还没想好，maybe会有毒药
         snakeBodys.pop_back();
     }
 
-    if(!lastPositions.empty())
-    {
-        lastPositions.pop_back();
-    }
 
     if(!snakeBodyRects.empty())
     {
@@ -111,13 +114,13 @@ void DrawManager::deleteSnakeBody()//还没想好，maybe会有毒药
 
 void DrawManager::drawSnakeBody(SDL_Renderer* renderer)
 {
-    snakeBodyRects.clear();
-
-    for(const auto& position : lastPositions)
-    {        
-        SDL_Rect bodyRect{INIT_POSX+position.getX()*TILE_SIZE,INIT_POSY+position.getY()*TILE_SIZE, TILE_SIZE, TILE_SIZE};
-        snakeBodyRects.emplace_back(bodyRect);
-        SDL_RenderCopy(renderer, snakeBodys[0]->getBodyTexture(), nullptr, &bodyRect); 
+    for(const auto& body : snakeBodys)
+    {
+        vec2 pos = body->getPosition();
+        SDL_Rect bodyRect{INIT_POSX + pos.getX() * TILE_SIZE,
+                          INIT_POSY + pos.getY() * TILE_SIZE,
+                          TILE_SIZE, TILE_SIZE};
+        SDL_RenderCopy(renderer, body->getBodyTexture(), nullptr, &bodyRect);
     }
 }
 

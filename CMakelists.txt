@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
 project(MySnake)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # 指定 SDL2 路径 (Windows MinGW 64位)

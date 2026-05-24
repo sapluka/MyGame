@@ -8,7 +8,7 @@
 #include "InitManager.h"
 
 
-constexpr double DEFAULT_TIMER = 500;
+constexpr double DEFAULT_TIMER = 250;
 constexpr int DEFAULT_VELOCITY = 5;
 constexpr int DEFAULT_DX = 1;
 constexpr int DEFAULT_DY = 0;
@@ -30,7 +30,7 @@ class SnakeHead : public Snake
 {
     public:
         SnakeHead()
-        : velocity(DEFAULT_VELOCITY), timer(DEFAULT_TIMER), dx(DEFAULT_DX), dy(DEFAULT_DY)
+        : velocity(DEFAULT_VELOCITY), moveTimer(DEFAULT_TIMER), dx(DEFAULT_DX), dy(DEFAULT_DY)
         {
             position.setX(DEFAULT_POSX);
             position.setY(DEFAULT_POSY);
@@ -72,9 +72,9 @@ class SnakeHead : public Snake
             return dy;
         }
 
-        double getTimer() const
+        double getMoveTimer() const
         {
-            return timer;
+            return moveTimer;
         }
 
         void snakeBite()//replace texture of snake head
@@ -103,7 +103,7 @@ class SnakeHead : public Snake
        
     private:
         int velocity;//to control the speed of the snake when using mouse motion
-        double timer;//to control the render time when using keyboard input
+        double moveTimer;//to control the render time when using keyboard input
         int dx;//to control the direction of the snake when using keyboard input
         int dy;//obviously,there must be a 0 between dx and dy
         SnakeState state;

@@ -8,6 +8,7 @@
 #include <SDL2/SDL_mixer.h>
 
 inline int moveCounter = 0;
+inline int hissCounter = 0;
 
 class GameManager
 {

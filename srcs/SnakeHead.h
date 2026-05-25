@@ -14,23 +14,23 @@ constexpr int DEFAULT_DX = 1;
 constexpr int DEFAULT_DY = 0;
 constexpr int DEFAULT_POSX = 4;
 constexpr int DEFAULT_POSY = 4;
-constexpr int BITE_TIME = 100;
+constexpr int HISS_TIMER = 100;
 
 constexpr const char* SNAKE_HEAD_IMG_PATH = "../assets/snake_head_tile.png";
-constexpr const char* SNAKE_HEAD_BITE_IMG_PATH = "../assets/snake_head_biten_tile.png";
+constexpr const char* SNAKE_HEAD_HISS_IMG_PATH = "../assets/snake_head_hiss_tile.png";
 
-
+    
 enum class SnakeState
 {
     IDLE,
-    BITE
+    HISS
 };
 
 class SnakeHead : public Snake
 {
     public:
         SnakeHead()
-        : velocity(DEFAULT_VELOCITY), moveTimer(DEFAULT_TIMER), dx(DEFAULT_DX), dy(DEFAULT_DY)
+        : velocity(DEFAULT_VELOCITY), dx(DEFAULT_DX), dy(DEFAULT_DY)
         {
             position.setX(DEFAULT_POSX);
             position.setY(DEFAULT_POSY);
@@ -77,14 +77,17 @@ class SnakeHead : public Snake
             return moveTimer;
         }
 
-        void snakeBite()//replace texture of snake head
+        double getHissTimer() const
         {
-            snakeHeadTexture.reset(BITE_HEAD_TEXTURE);
+            return hissTimer;
         }
 
-        void snakeRecover()//recover texture of snake head
+        void hiss();
+        void snakeRecover();
+        
+        SnakeState getState() const
         {
-            snakeHeadTexture.reset(IDLE_HEAD_TEXTURE);
+            return state;
         }
 
         void initHeadTexture(SDL_Renderer* renderer);
@@ -103,13 +106,14 @@ class SnakeHead : public Snake
        
     private:
         int velocity;//to control the speed of the snake when using mouse motion
-        double moveTimer;//to control the render time when using keyboard input
+        double moveTimer = DEFAULT_TIMER;//to control the render time when using keyboard input
+        double hissTimer = HISS_TIMER;//to control the render time of snake head's hiss state
         int dx;//to control the direction of the snake when using keyboard input
         int dy;//obviously,there must be a 0 between dx and dy
         SnakeState state;
         SDL_Rect headRect;
         SDL_Texture*IDLE_HEAD_TEXTURE;
-        SDL_Texture*BITE_HEAD_TEXTURE;
+        SDL_Texture*HISS_HEAD_TEXTURE;
         SmartTexture snakeHeadTexture;
         
         

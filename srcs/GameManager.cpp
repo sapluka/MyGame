@@ -35,12 +35,15 @@ void GameManager::runGame()
         drawManager.drawBackground(initManager.getRenderer());
         drawManager.drawBoard(initManager.getRenderer());
         //drawFood
-        handleKeyBoardEvents();//update snake head's position and direction,later we will update snake body's position in this function as well
         
+        handleKeyBoardEvents();//update snake head's position and direction,later we will update snake body's position in this function as well
+        handleMove();
+        handleRecover();
         drawManager.updateGrid();
         
-        drawManager.drawSnakeBody(initManager.getRenderer());
         drawManager.drawSnakeHead(initManager.getRenderer());
+        drawManager.drawSnakeBody(initManager.getRenderer());
+        
 
         drawManager.drawFood(initManager.getRenderer() );
         drawManager.rendererPresent(initManager.getRenderer());
@@ -91,10 +94,53 @@ void GameManager::handleKeyBoardEvents()//根据键盘事件改变蛇头的方�
                 }
             }
 
-            
         }
     }
 
+}
+
+void GameManager::handleEvents()//这个函数主要用来处理吃食物和更新网格的事件
+{
+    
+    if(drawManager.isFoodEmpty())
+    {
+        drawManager.createFood(initManager.getRenderer());
+    }
+    // This function can be used to handle the game events such as eating food, updating the grid, etc
+    if(drawManager.isEatSomething())
+    {
+        SDL_Log("EAT FOOD");
+        handleHiss();
+        drawManager.deleteFood();//删除了food和foodrect
+        drawManager.createFood(initManager.getRenderer());//在这之前都成功了，现在要么是createSnakeBody函数有问题，要么是drawSnakeBody函数有问题
+        drawManager.createSnakeBody(initManager.getRenderer());
+          
+    }
+}
+
+void GameManager::handleHiss()
+{
+    if(drawManager.isEatSomething() && snakeHead.getState() == SnakeState::IDLE)
+    {
+        SDL_Log("HANDLE HISS");
+        snakeHead.hiss();       
+        hissCounter = SDL_GetTicks(); // Reset timer after hissing
+    }
+
+ 
+}
+
+void GameManager::handleRecover()
+{
+    int currentTime = SDL_GetTicks();
+    if (currentTime - hissCounter >= HISS_TIMER && snakeHead.getState() == SnakeState::HISS) {
+        snakeHead.snakeRecover(); // Recover snake head texture after hissing
+    }
+    // This function can be used to handle the recovery of the snake head after hissing
+}
+
+void GameManager::handleMove()
+{
       int currentTime = SDL_GetTicks();
             
             if (currentTime - moveCounter >= snakeHead.getMoveTimer() ) {
@@ -108,34 +154,6 @@ void GameManager::handleKeyBoardEvents()//根据键盘事件改变蛇头的方�
                     moveCounter = currentTime; // Reset timer after moving
                 }
             }
-
-            if(currentTime - hissCounter >= snakeHead.getHissTimer()&& snakeHead.getState() == SnakeState::HISS)
-            {
-                snakeHead.snakeRecover();
-            }
-}
-
-void GameManager::handleEvents()//这个函数主要用来处理吃食物和更新网格的事件
-{
-    
-    if(drawManager.isFoodEmpty())
-    {
-        drawManager.updateGrid();
-        drawManager.createFood(initManager.getRenderer());
-    }
-    // This function can be used to handle the game events such as eating food, updating the grid, etc
-    if(drawManager.isEatSomething())
-    {
-        SDL_Log("EAT FOOD");
-        drawManager.deleteFood();//删除了food和foodrect
-        drawManager.updateGrid();
-        drawManager.createFood(initManager.getRenderer());//在这之前都成功了，现在要么是createSnakeBody函数有问题，要么是drawSnakeBody函数有问题
-        drawManager.createSnakeBody(initManager.getRenderer());
-        drawManager.updateGrid();
-        snakeHead.hiss();
-        hissCounter = SDL_GetTicks();
-        
-    }
 }
 
 

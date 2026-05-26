@@ -10,6 +10,8 @@
 inline int moveCounter = 0;
 inline int hissCounter = 0;
 
+
+
 class GameManager
 {
     public:
@@ -21,6 +23,9 @@ class GameManager
         void runGame();
         void handleKeyBoardEvents();
         void handleEvents();
+        void handleMove();
+        void handleHiss();
+        void handleRecover();
         void initGame();
         bool isPossibleMove();
         

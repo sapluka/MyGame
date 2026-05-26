@@ -19,25 +19,23 @@ void SnakeHead::changeDirection(int newDx, int newDy)
 
 void SnakeHead::initHeadTexture(SDL_Renderer* renderer)
 {
-    IDLE_HEAD_TEXTURE = IMG_LoadTexture(renderer, SNAKE_HEAD_IMG_PATH);
-    HISS_HEAD_TEXTURE = IMG_LoadTexture(renderer, SNAKE_HEAD_HISS_IMG_PATH);
-    if (!IDLE_HEAD_TEXTURE) {
+    idleHeadTexture.reset(IMG_LoadTexture(renderer, SNAKE_HEAD_IMG_PATH));
+    hissHeadTexture.reset(IMG_LoadTexture(renderer, SNAKE_HEAD_HISS_IMG_PATH));
+    if (!idleHeadTexture) {
         SDL_Log("Failed to load idle snake head texture: %s", SDL_GetError());
     }
-    if (!HISS_HEAD_TEXTURE) {
+    if (!hissHeadTexture) {
         SDL_Log("Failed to load hissing snake head texture: %s", SDL_GetError());
     }
-    snakeHeadTexture.reset(IDLE_HEAD_TEXTURE);
 }
 
 void SnakeHead::hiss()//replace texture of snake head
 {
+    SDL_Log("SNAKE HISS");
     state = SnakeState::HISS;
-    snakeHeadTexture.reset(HISS_HEAD_TEXTURE);
 }
 
 void SnakeHead::snakeRecover()//recover texture of snake head
 {
     state = SnakeState::IDLE;
-    snakeHeadTexture.reset(IDLE_HEAD_TEXTURE);
 }

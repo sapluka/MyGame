@@ -269,3 +269,4 @@ void DrawManager::deleteFood()
         foodRects.pop_back();
     }
 }
+

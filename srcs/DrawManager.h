@@ -49,8 +49,10 @@ class DrawManager
         void drawFood(SDL_Renderer* renderer);
         void initFoodTexture(SDL_Renderer* renderer);
         bool isPossibleFoodPosition(const vec2 position) const;
-        void updateGrid();
        
+
+
+        void updateGrid();
         bool isEatSomething();
         void drawBackground(SDL_Renderer* renderer);
 

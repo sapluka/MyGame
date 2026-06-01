@@ -3,161 +3,270 @@
 #include "SDL_log.h"
 #include "SnakeHead.h"
 
+// ═══════════════════════════════════════════════════════════
+//  初始化
+// ═══════════════════════════════════════════════════════════
+
 void GameManager::initGame()
 {
-    initManager.initGame();//init SDL, window and renderer
-    drawManager.initGraphics(initManager.getRenderer());//init static textures
+    initManager.initGame();                        // SDL + Window + Renderer
+    drawManager.initGraphics(initManager.getRenderer());  // 加载静态纹理
 }
 
+void GameManager::initScreens()
+{
+    SDL_Renderer* renderer = initManager.getRenderer();
 
+    // 三个 screen 共用同一个字体
+    menuScreen.loadFont(DEFAULT_FONT_PATH, DEFAULT_FONT_SIZE);
+    pauseScreen.loadFont(DEFAULT_FONT_PATH, DEFAULT_FONT_SIZE);
+    gameOverScreen.loadFont(DEFAULT_FONT_PATH, DEFAULT_FONT_SIZE);
+
+    // ── 主菜单 ──
+    menuScreen.addButton(500, 300, 200, 60, "Start Game", [this]() {
+        resetGame();
+        currentState = GameState::PLAYING;
+    });
+    menuScreen.addButton(500, 380, 200, 60, "Exit", [this]() {
+        isRunning = false;
+    });
+
+    // ── 暂停 ──
+    pauseScreen.addButton(500, 300, 200, 60, "Continue", [this]() {
+        currentState = GameState::PLAYING;
+    });
+    pauseScreen.addButton(500, 380, 200, 60, "Return to Menu", [this]() {
+        currentState = GameState::MENU;
+    });
+
+    // ── 死亡 ──
+    gameOverScreen.addButton(500, 300, 200, 60, "Restart", [this]() {
+        resetGame();
+        currentState = GameState::PLAYING;
+    });
+    gameOverScreen.addButton(500, 380, 200, 60, "Return to Menu", [this]() {
+        currentState = GameState::MENU;
+    });
+}
+
+// ═══════════════════════════════════════════════════════════
+//  主循环
+// ═══════════════════════════════════════════════════════════
 
 void GameManager::runGame()
 {
     initGame();
+    initScreens();
 
-    while (true) {
-        //这里的逻辑有点乱
-        /*
-        清屏
-处理键盘事件，更新蛇头的位置和方向，后续我们还会在这个函数里更新蛇身体的位置
-处理吃食物和更新网格的事件(塞入handleKeyBoardEvents()函数里，因为这里面有控制move()的timer，不应该每一帧都处理事件)
-绘制背景
-绘制棋盘    
-绘制蛇头
-绘制蛇身体
-绘制食物
-呈现
-        */
-        SDL_SetRenderDrawColor(initManager.getRenderer(), 255, 255, 255, 255);
-        SDL_RenderClear(initManager.getRenderer());
-        
+    SDL_Renderer* renderer = initManager.getRenderer();
 
-        drawManager.drawBackground(initManager.getRenderer());
-        drawManager.drawBoard(initManager.getRenderer());
-        //drawFood
-        
-        handleKeyBoardEvents();//update snake head's position and direction,later we will update snake body's position in this function as well
-        handleMove();
-        handleRecover();
-        drawManager.updateGrid();
-        
-        drawManager.drawSnakeHead(initManager.getRenderer());
-        drawManager.drawSnakeBody(initManager.getRenderer());
-        
+    while (isRunning) {
+        // ── 事件处理 ──
+        SDL_Event event;
+        while (SDL_PollEvent(&event)) {
+            if (event.type == SDL_QUIT) {
+                isRunning = false;
+                break;
+            }
 
-        drawManager.drawFood(initManager.getRenderer() );
-        drawManager.rendererPresent(initManager.getRenderer());
+            switch (currentState) {
+                case GameState::MENU:
+                    menuScreen.handleEvent(event);
+                    break;
+                case GameState::PLAYING:
+                    handlePlayingEvent(event);
+                    break;
+                case GameState::PAUSED:
+                    handlePauseEvent(event);
+                    break;
+                case GameState::GAME_OVER:
+                    gameOverScreen.handleEvent(event);
+                    break;
+            }
+        }
 
+        // ── 渲染 ──
+        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+        SDL_RenderClear(renderer);
+        drawManager.drawBackground(renderer);
+
+        switch (currentState) {
+            case GameState::MENU:
+                menuScreen.render(renderer);
+                break;
+
+            case GameState::PLAYING:
+                updateGame();
+                renderGame();
+                break;
+
+            case GameState::PAUSED:
+                renderGame();                    // 游戏画面垫底
+                drawDimOverlay(renderer);        // 半透明遮罩
+                pauseScreen.render(renderer);    // 按钮在上层
+                break;
+
+            case GameState::GAME_OVER:
+                renderGame();
+                drawDimOverlay(renderer);
+                gameOverScreen.render(renderer);
+                break;
+        }
+
+        SDL_RenderPresent(renderer);
     }
 }
 
-bool GameManager::isPossibleMove()
-{
-if(snakeHead.getPosition().getX()+snakeHead.getDx() < 0 || snakeHead.getPosition().getX()+snakeHead.getDx() >= BOARD_WIDTH ||
-   snakeHead.getPosition().getY()+snakeHead.getDy() < 0 || snakeHead.getPosition().getY()+snakeHead.getDy() >= BOARD_HEIGHT) {
-    return false;}
-  
-    return true; // Move is possible
-}
+// ═══════════════════════════════════════════════════════════
+//  状态事件处理
+// ═══════════════════════════════════════════════════════════
 
-void GameManager::handleKeyBoardEvents()//根据键盘事件改变蛇头的方向，同时根据蛇头的方向和位置更新蛇头的位置
+void GameManager::handlePlayingEvent(const SDL_Event& event)
 {
-    SDL_Event event;
-    
-    while (SDL_PollEvent(&event)) {
-        if (event.type == SDL_QUIT) {
-            // Handle quit event, e.g., clean up and exit
-            SDL_Quit();
-            break;
-        } 
-        if (event.type == SDL_KEYDOWN) {
-            // Handle key down event, e.g., change direction based on arrow keys
-            switch (event.key.keysym.sym) {
-                case SDLK_w:
-                    snakeHead.changeDirection(0, -1);
-                    break;
-                case SDLK_s:
-                    snakeHead.changeDirection(0, 1);
-                    break;
-                case SDLK_a:
-                    snakeHead.changeDirection(-1, 0);
-                    break;
-                case SDLK_d:
-                    snakeHead.changeDirection(1, 0);
-                    break;
-            }
-            if (event.type == SDL_WINDOWEVENT) 
-            {
-                if(event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED)
-                {
-                 
-                }
-            }
-
+    if (event.type == SDL_KEYDOWN) {
+        switch (event.key.keysym.sym) {
+            case SDLK_ESCAPE:
+                currentState = GameState::PAUSED;
+                break;
+            case SDLK_w:
+                snakeHead.changeDirection(0, -1);
+                break;
+            case SDLK_s:
+                snakeHead.changeDirection(0, 1);
+                break;
+            case SDLK_a:
+                snakeHead.changeDirection(-1, 0);
+                break;
+            case SDLK_d:
+                snakeHead.changeDirection(1, 0);
+                break;
         }
     }
-
 }
 
-void GameManager::handleEvents()//这个函数主要用来处理吃食物和更新网格的事件
+void GameManager::handlePauseEvent(const SDL_Event& event)
 {
-    
-    if(drawManager.isFoodEmpty())
-    {
+    // ESC 也能恢复
+    if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE) {
+        currentState = GameState::PLAYING;
+        return;
+    }
+    pauseScreen.handleEvent(event);
+}
+
+// ═══════════════════════════════════════════════════════════
+//  游戏逻辑（从原来的 runGame 里拆出来）
+// ═══════════════════════════════════════════════════════════
+
+void GameManager::updateGame()
+{
+    handleMove();
+    handleRecover();
+    drawManager.updateGrid();
+}
+
+void GameManager::renderGame()
+{
+    drawManager.drawBoard(initManager.getRenderer());
+    drawManager.drawSnakeHead(initManager.getRenderer());
+    drawManager.drawSnakeBody(initManager.getRenderer());
+    drawManager.drawFood(initManager.getRenderer());
+}
+
+void GameManager::handleMove()
+{
+    int currentTime = SDL_GetTicks();
+
+    if (currentTime - moveCounter >= snakeHead.getMoveTimer()) {
+        if (!isPossibleMove()) {
+            currentState = GameState::GAME_OVER;   // 撞墙 → 死亡
+            return;
+        }
+
+        snakeHead.move();
+        handleEvents();                             // 吃食物, 创建 Food/Body, 更新网格
+        drawManager.updateBodyPosition();
+        drawManager.recordLastPosition();
+
+        moveCounter = currentTime;
+    }
+}
+
+void GameManager::handleEvents()
+{
+    if (drawManager.isFoodEmpty()) {
         drawManager.createFood(initManager.getRenderer());
     }
-    // This function can be used to handle the game events such as eating food, updating the grid, etc
-    if(drawManager.isEatSomething())
-    {
+
+    if (drawManager.isEatSomething()) {
         SDL_Log("EAT FOOD");
         handleHiss();
-        drawManager.deleteFood();//删除了food和foodrect
-        drawManager.createFood(initManager.getRenderer());//在这之前都成功了，现在要么是createSnakeBody函数有问题，要么是drawSnakeBody函数有问题
+        drawManager.deleteFood();
+        drawManager.createFood(initManager.getRenderer());
         drawManager.createSnakeBody(initManager.getRenderer());
-          
     }
 }
 
 void GameManager::handleHiss()
 {
-    if(drawManager.isEatSomething() && snakeHead.getState() == SnakeState::IDLE)
-    {
+    if (drawManager.isEatSomething() && snakeHead.getState() == SnakeState::IDLE) {
         SDL_Log("HANDLE HISS");
-        snakeHead.hiss();       
-        hissCounter = SDL_GetTicks(); // Reset timer after hissing
+        snakeHead.hiss();
+        hissCounter = SDL_GetTicks();
     }
-
- 
 }
 
 void GameManager::handleRecover()
 {
     int currentTime = SDL_GetTicks();
     if (currentTime - hissCounter >= HISS_TIMER && snakeHead.getState() == SnakeState::HISS) {
-        snakeHead.snakeRecover(); // Recover snake head texture after hissing
+        snakeHead.snakeRecover();
     }
-    // This function can be used to handle the recovery of the snake head after hissing
 }
 
-void GameManager::handleMove()
+bool GameManager::isPossibleMove()
 {
-      int currentTime = SDL_GetTicks();
-            
-            if (currentTime - moveCounter >= snakeHead.getMoveTimer() ) {
-                if(isPossibleMove())
-                {
-                    snakeHead.move();
-                    handleEvents();//吃食物,创建Food,Body,更新网格
-                    drawManager.updateBodyPosition();
-                    drawManager.recordLastPosition();
-
-                    moveCounter = currentTime; // Reset timer after moving
-                }
-            }
+    if (snakeHead.getPosition().getX() + snakeHead.getDx() < 0 ||
+        snakeHead.getPosition().getX() + snakeHead.getDx() >= BOARD_WIDTH ||
+        snakeHead.getPosition().getY() + snakeHead.getDy() < 0 ||
+        snakeHead.getPosition().getY() + snakeHead.getDy() >= BOARD_HEIGHT) {
+        return false;
+    }
+    return true;
 }
 
+// ═══════════════════════════════════════════════════════════
+//  重置 & 辅助
+// ═══════════════════════════════════════════════════════════
 
+void GameManager::resetGame()
+{
+    // 重置蛇头
+    snakeHead.setPosition(DEFAULT_POSX, DEFAULT_POSY);
+    snakeHead.changeDirection(DEFAULT_DX, DEFAULT_DY);
+    snakeHead.snakeRecover();
 
+    // 清空蛇身
+    while (!drawManager.isSnakeBodyEmpty()) {
+        drawManager.deleteSnakeBody();
+    }
+    // 清空食物
+    while (!drawManager.isFoodEmpty()) {
+        drawManager.deleteFood();
+    }
 
+    // 重置计时器
+    moveCounter = SDL_GetTicks();
+    hissCounter = 0;
 
+    // 刷新网格
+    drawManager.updateGrid();
+}
 
+void GameManager::drawDimOverlay(SDL_Renderer* renderer)
+{
+    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 128);   // 半透明黑色
+    SDL_Rect overlay = {0, 0, WINDOW_WIDTH, WINDOW_HEIGHT};
+    SDL_RenderFillRect(renderer, &overlay);
+}

@@ -9,9 +9,26 @@
 
 void InitManager::initSDL()
 {
-    if(SDL_Init(SDL_INIT_VIDEO|SDL_INIT_AUDIO|SDL_INIT_EVENTS|SDL_INIT_TIMER) < 0) 
-    {
+    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_EVENTS | SDL_INIT_TIMER) < 0) {
         SDL_Log("Failed to initialize SDL: %s", SDL_GetError());
+        exit(1);
+    }
+
+    // SDL_image: 加载 PNG 纹理需要
+    if (!(IMG_Init(IMG_INIT_PNG) & IMG_INIT_PNG)) {
+        SDL_Log("Failed to initialize SDL_image: %s", IMG_GetError());
+        exit(1);
+    }
+
+    // SDL_ttf: 渲染字体文字需要
+    if (TTF_Init() < 0) {
+        SDL_Log("Failed to initialize SDL_ttf: %s", TTF_GetError());
+        exit(1);
+    }
+
+    // SDL_mixer: 音频播放需要
+    if (Mix_Init(MIX_INIT_MP3) == 0) {
+        SDL_Log("Failed to initialize SDL_mixer: %s", Mix_GetError());
         exit(1);
     }
 }
@@ -51,6 +68,19 @@ void InitManager::initGame()
 SDL_Renderer* InitManager::getRenderer() const
 {
     return renderer.get();
+}
+
+InitManager::~InitManager()
+{
+    shutdown();
+}
+
+void InitManager::shutdown()
+{
+    Mix_Quit();
+    TTF_Quit();
+    IMG_Quit();
+    SDL_Quit();
 }
 
 

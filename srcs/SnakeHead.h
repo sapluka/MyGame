@@ -60,6 +60,8 @@ class SnakeHead : public Snake
         {
             position.setX(x);
             position.setY(y);
+            headRect.x = INIT_POSX + x * TILE_SIZE;
+            headRect.y = INIT_POSY + y * TILE_SIZE;
         }
 
         int getDx() const

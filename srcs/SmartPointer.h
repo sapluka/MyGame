@@ -2,6 +2,7 @@
 #include "SDL_render.h"
 #include <memory>
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_ttf.h>
 
 struct SDL_WindowDeleter {
     void operator()(SDL_Window* window) const {
@@ -35,3 +36,12 @@ struct SDL_TextureDeleter {
 
 using SmartTexture = std::unique_ptr<SDL_Texture,SDL_TextureDeleter>;
 
+struct TTF_FontDeleter {
+    void operator()(TTF_Font* font) const {
+        if (font) {
+            TTF_CloseFont(font);
+        }
+    }
+};
+
+using SmartFont = std::unique_ptr<TTF_Font, TTF_FontDeleter>;

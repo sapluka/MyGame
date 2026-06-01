@@ -16,7 +16,7 @@
 #include "vec2.h"
 
 //the objects which are dynamically created better placed in the DrawManager
-class DrawManager
+class DrawManager//主要绘制和游戏有关的画面
 {
     public:
         DrawManager(Board& b, SnakeHead& head): board(b), snakeHead(head)

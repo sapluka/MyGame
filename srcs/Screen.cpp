@@ -17,7 +17,7 @@ Button* Screen::addButton(int x, int y, int w, int h, const std::string& text,
     btn->setOnClick(std::move(onClick));
     Button* ptr = btn.get();
     buttons.push_back(ptr);
-    widgets.push_back(std::move(btn));
+    widgets.push_back(std::move(btn));//智能指针不接受左值故先转换成右值
 
     // 第一个添加的按钮自动获得键盘焦点
     if (buttons.size() == 1) {
@@ -110,4 +110,10 @@ void Screen::updateSelection()
     for (size_t i = 0; i < buttons.size(); ++i) {
         buttons[i]->setSelected(static_cast<int>(i) == selectedIndex);
     }
+}
+
+
+void Screen::playBGM(const char* path) const
+{
+    AudioManager::getInstance().playBGM(path);
 }

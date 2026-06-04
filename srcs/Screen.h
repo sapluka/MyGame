@@ -6,9 +6,11 @@
 #include <vector>
 #include <memory>
 #include <functional>
+#include "AudioManager.h"
 
 constexpr int DEFAULT_FONT_SIZE = 28;
 constexpr const char* DEFAULT_FONT_PATH = "../assets/font.ttf";
+constexpr const char* MENU_BGM_PATH = "../assets/menuBGM.mp3";
 
 class Screen
 {
@@ -17,8 +19,6 @@ public:
     ~Screen() = default;
 
     // 禁止拷贝（unique_ptr 成员不可拷贝）
-    Screen(const Screen&) = delete;
-    Screen& operator=(const Screen&) = delete;
 
     void render(SDL_Renderer* renderer);
     void handleEvent(const SDL_Event& event);
@@ -31,6 +31,9 @@ public:
     Button* addButton(int x, int y, int w, int h, const std::string& text,
                       std::function<void()> onClick);
 
+
+    void playBGM(const char* path) const;
+    
     void clearWidgets();
 
     // 键盘导航
@@ -42,7 +45,11 @@ private:
     std::vector<std::unique_ptr<Widget>> widgets;
     std::vector<Button*> buttons;       // 不拥有所有权，仅用于键盘导航
     SmartFont font;
+
     int selectedIndex = -1;
 
     void updateSelection();
+    Screen(const Screen&) = delete;
+    Screen& operator=(const Screen&) = delete;
+
 };

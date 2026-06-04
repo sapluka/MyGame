@@ -72,6 +72,7 @@ void GameManager::runGame()
             switch (currentState) {
                 case GameState::MENU:
                     menuScreen.handleEvent(event);
+                    menuScreen.playBGM(MENU_BGM_PATH);
                     break;
                 case GameState::PLAYING:
                     handlePlayingEvent(event);

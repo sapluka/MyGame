@@ -33,6 +33,7 @@ void SnakeHead::hiss()//replace texture of snake head
 {
     SDL_Log("SNAKE HISS");
     state = SnakeState::HISS;
+    AudioManager::getInstance().playChunk(HISS_SOUND_PATH);
 }
 
 void SnakeHead::snakeRecover()//recover texture of snake head

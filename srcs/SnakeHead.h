@@ -1,11 +1,13 @@
 #pragma once
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
+#include <SDL2/SDL_mixer.h>
 #include "SDL_render.h"
 #include "Snake.h"
 #include "vec2.h"
 #include "SmartPointer.h"
 #include "InitManager.h"
+#include "AudioManager.h"
 
 
 constexpr double DEFAULT_TIMER = 250;
@@ -18,7 +20,7 @@ constexpr int HISS_TIMER = 500;
 
 constexpr const char* SNAKE_HEAD_IMG_PATH = "../assets/snake_head_tile.png";
 constexpr const char* SNAKE_HEAD_HISS_IMG_PATH = "../assets/snake_head_hiss_tile.png";
-
+constexpr const char* HISS_SOUND_PATH = "../assets/hiss.wav";
     
 enum class SnakeState
 {

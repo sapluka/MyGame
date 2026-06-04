@@ -3,6 +3,7 @@
 #include <memory>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
+#include <SDL2/SDL_mixer.h>
 
 struct SDL_WindowDeleter {
     void operator()(SDL_Window* window) const {
@@ -45,3 +46,26 @@ struct TTF_FontDeleter {
 };
 
 using SmartFont = std::unique_ptr<TTF_Font, TTF_FontDeleter>;
+
+
+struct Mix_ChunkDeleter {
+    void operator()(Mix_Chunk* chunk) const {
+        if (chunk) {
+            Mix_FreeChunk(chunk);
+        }
+    }
+};
+
+
+using SmartChunk = std::unique_ptr<Mix_Chunk, Mix_ChunkDeleter>;
+
+
+struct Mix_MusicDeleter {
+    void operator()(Mix_Music* music) const {
+        if (music) {
+            Mix_FreeMusic(music);
+        }
+    }
+};
+
+using SmartMusic = std::unique_ptr<Mix_Music, Mix_MusicDeleter>;

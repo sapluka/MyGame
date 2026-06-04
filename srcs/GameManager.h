@@ -23,7 +23,7 @@ public:
         : initManager(i), drawManager(d), snakeHead(s), board(br) {}
     ~GameManager() = default;
 
-    void runGame();
+    void runGame();//主循环
 
 private:
     InitManager& initManager;
@@ -52,14 +52,15 @@ private:
     void handlePauseEvent(const SDL_Event& event);
 
     // ── 游戏逻辑 ──
-    void updateGame();
-    void renderGame();
-    void handleMove();
-    void handleEvents();
+    void updateGame();//执行状态机
+    void renderGame();//draw game objects
+    void handleMove();//更新位置，判断死亡
+    void handleEvents();//处理游戏内事件
     void handleHiss();
     void handleRecover();
     void resetGame();
     bool isPossibleMove();
+    
 
     // ── 辅助 ──
     void drawDimOverlay(SDL_Renderer* renderer);

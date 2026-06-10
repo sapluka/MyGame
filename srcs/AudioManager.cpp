@@ -1,4 +1,4 @@
-#include <AudioManager.h>
+#include "AudioManager.h"
 
 AudioManager& AudioManager::getInstance()
 {
@@ -6,28 +6,53 @@ AudioManager& AudioManager::getInstance()
     return instance;
 }
 
-void AudioManager::playChunk(const char* filePath)
+void AudioManager::init()
 {
-    Mix_Chunk* chunk = Mix_LoadWAV(filePath);
-    if (!chunk) {
-        SDL_Log("Failed to load sound effect: %s", Mix_GetError());
-        return;
+    Mix_Chunk* hissChunk = Mix_LoadWAV(HISS_SOUND_PATH);
+    if (hissChunk) {
+        chunkCache.emplace("hiss", hissChunk);
+    } else {
+        SDL_Log("Failed to load hiss.wav: %s", Mix_GetError());
     }
-    Mix_PlayChannel(-1, chunk, 0);
-    Mix_FreeChunk(chunk); // 播放后立即释放
+
+    Mix_Music* bgmMusic = Mix_LoadMUS(MENU_BGM_PATH);
+    if (bgmMusic) {
+        bgmCache.emplace("menuBGM", bgmMusic);
+    } else {
+        SDL_Log("Failed to load menuBGM.mp3: %s", Mix_GetError());
+    }
 }
 
-void AudioManager::playBGM(const char* filePath)
+void AudioManager::playChunk(std::string fileName)
 {
-    Mix_Music* music = Mix_LoadMUS(filePath);
-    if (!music) {
-        SDL_Log("Failed to load background music: %s", Mix_GetError());
-        return;
+    auto it = chunkCache.find(fileName);
+    if (it != chunkCache.end()) {
+        Mix_PlayChannel(-1, it->second, 0);
     }
-    Mix_PlayMusic(music, -1); // 循环播放
+}
+
+void AudioManager::playBGM(std::string fileName)
+{
+    auto it = bgmCache.find(fileName);
+    if (it != bgmCache.end()) {
+        Mix_PlayMusic(it->second, -1);
+    }
 }
 
 void AudioManager::stopBGM()
 {
     Mix_HaltMusic();
+}
+
+void AudioManager::cleanup()
+{
+    for (auto& pair : chunkCache) {
+        Mix_FreeChunk(pair.second);
+    }
+    chunkCache.clear();
+
+    for (auto& pair : bgmCache) {
+        Mix_FreeMusic(pair.second);
+    }
+    bgmCache.clear();
 }

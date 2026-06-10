@@ -8,7 +8,7 @@
 
 
 
-constexpr const char* FOOD_IMG_PATH = "../assets/food_tile.png";
+#include "Assets.h"
 
 class Food
 {

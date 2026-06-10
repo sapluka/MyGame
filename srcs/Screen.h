@@ -8,9 +8,9 @@
 #include <functional>
 #include "AudioManager.h"
 
+#include "Assets.h"
+
 constexpr int DEFAULT_FONT_SIZE = 28;
-constexpr const char* DEFAULT_FONT_PATH = "../assets/font.ttf";
-constexpr const char* MENU_BGM_PATH = "../assets/menuBGM.mp3";
 
 class Screen
 {
@@ -32,7 +32,7 @@ public:
                       std::function<void()> onClick);
 
 
-    void playBGM(const char* path) const;
+    void playBGM(std::string fileName) const;
     
     void clearWidgets();
 

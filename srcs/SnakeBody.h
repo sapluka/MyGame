@@ -3,7 +3,7 @@
 #include "vec2.h"
 #include <vector>
 
-constexpr const char* SNAKE_BODY_IMG_PATH = "../assets/snake_body_tile.png";
+#include "Assets.h"
 
 class SnakeBody : public Snake
 {

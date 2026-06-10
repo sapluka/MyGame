@@ -7,7 +7,7 @@ constexpr int BOARD_HEIGHT = 10; // Number of tiles in the height
 constexpr int INIT_POSX = 300;
 constexpr int INIT_POSY = 100;
 
-constexpr const char* BOARD_TILE_IMG_PATH = "../assets/board_tile.png";
+#include "Assets.h"
 
 class Board
 {

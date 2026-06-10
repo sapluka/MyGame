@@ -113,7 +113,7 @@ void Screen::updateSelection()
 }
 
 
-void Screen::playBGM(const char* path) const
+void Screen::playBGM(std::string fileName) const
 {
-    AudioManager::getInstance().playBGM(path);
+    AudioManager::getInstance().playBGM(fileName);
 }

@@ -27,7 +27,7 @@ void InitManager::initSDL()
     }
 
     // SDL_mixer: 音频播放需要
-    if (Mix_Init(MIX_INIT_MP3) == 0&& Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0) {
+    if (Mix_Init(MIX_INIT_MP3) == 0|| Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0) {
         SDL_Log("Failed to initialize SDL_mixer: %s", Mix_GetError());
         exit(1);
     }

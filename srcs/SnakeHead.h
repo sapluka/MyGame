@@ -18,9 +18,7 @@ constexpr int DEFAULT_POSX = 4;
 constexpr int DEFAULT_POSY = 4;
 constexpr int HISS_TIMER = 500;
 
-constexpr const char* SNAKE_HEAD_IMG_PATH = "../assets/snake_head_tile.png";
-constexpr const char* SNAKE_HEAD_HISS_IMG_PATH = "../assets/snake_head_hiss_tile.png";
-constexpr const char* HISS_SOUND_PATH = "../assets/hiss.wav";
+#include "Assets.h"
     
 enum class SnakeState
 {

@@ -2,6 +2,7 @@
 #include "DrawManager.h"
 #include "SDL_log.h"
 #include "SnakeHead.h"
+#include "AudioManager.h"
 
 // ═══════════════════════════════════════════════════════════
 //  初始化
@@ -9,8 +10,9 @@
 
 void GameManager::initGame()
 {
-    initManager.initGame();                        // SDL + Window + Renderer
+    initManager.initGame();                        // SDL + Window + Renderer + Audio
     drawManager.initGraphics(initManager.getRenderer());  // 加载静态纹理
+    AudioManager::getInstance().init();            // 加载音频（必须在 Mix_OpenAudio 之后）
 }
 
 void GameManager::initScreens()
@@ -72,15 +74,20 @@ void GameManager::runGame()
             switch (currentState) {
                 case GameState::MENU:
                     menuScreen.handleEvent(event);
-                    menuScreen.playBGM(MENU_BGM_PATH);
+                    if(!Mix_PlayingMusic()) {
+                        menuScreen.playBGM("menuBGM");
+                    }
                     break;
                 case GameState::PLAYING:
+                    Mix_HaltMusic();  // 停止菜单音乐
                     handlePlayingEvent(event);
                     break;
                 case GameState::PAUSED:
+                    Mix_HaltMusic();
                     handlePauseEvent(event);
                     break;
                 case GameState::GAME_OVER:
+                    Mix_HaltMusic();
                     gameOverScreen.handleEvent(event);
                     break;
             }
